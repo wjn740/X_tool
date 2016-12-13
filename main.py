@@ -12,6 +12,8 @@ from node import build_statistic_data
 import pandas as pd
 
 from collections import defaultdict
+from collections import OrderedDict
+from DefaultOrderedDict import DefaultOrderedDict
 
 
 compare_product_list = list()
@@ -209,8 +211,19 @@ def build_global_testcase_list():
     for (submission_id, arch, product, release, host, log_url, testsuite, test_time, failed, testcase, kernel_version) in cursor:
         testcase_list.append(TestCase(submission_id, arch, product, release, host, log_url, testsuite, test_time, testcase,kernel_version))
 
-    groups = defaultdict(list)
+    #groups = defaultdict(list)
 
+    #for obj in testcase_list:
+    #    groups[obj.kernel_version+obj.product+obj.release].append(obj)
+    #new_list = groups.values()
+    #a = OrderedDict(new_list)
+
+    #groups = OrderedDict()
+    #for obj in testcase_list:
+    #    groups[obj.kernel_version+obj.product+obj.release].append(obj)
+    #new_list = groups.values()
+
+    groups = DefaultOrderedDict(list)
     for obj in testcase_list:
         groups[obj.kernel_version+obj.product+obj.release].append(obj)
     new_list = groups.values()
@@ -219,13 +232,14 @@ def build_global_testcase_list():
     TestCase_global_list_array = new_list
 
 
+
 def build_statistic_list():
     if TestCase_global_list_array:
         for l in TestCase_global_list_array:
             statistics_list.append(statistics_node(l))
 
 
-def format_football(football):
+def format_dataframe(football):
     a=len(football.columns)
     c=int(a/2)
     d=len(football.index)
@@ -254,7 +268,7 @@ if statistics_list:
 if data:
     pd.set_option('display.width', 2000)
     dataframe = pd.DataFrame(data, index=statistics_list[0].indexs)
-    dataframe.style.format({'ratio1': "{:0.4f}", 'ratio2': "{:0.4f}"})
+    #dataframe.style.format({'ratio1': "{:0.4f}", 'ratio2': "{:0.4f}"})
     a=len(dataframe.columns)
     b=a
     for l in range(1, a, 1):
@@ -262,3 +276,5 @@ if data:
         b+=1
 
 print(dataframe)
+#format_dataframe(dataframe)
+#print(dataframe)
