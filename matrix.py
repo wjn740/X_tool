@@ -19,6 +19,14 @@ class status_matrix():
         return "<status_matrix>"
 
 
+def color_negative_red(val):
+    """
+    Takes a scalar and returns a string with
+    the css property `'color: red'` for negative
+    strings, black otherwise.
+    """
+    color = 'red' if val == 'Fail' else 'black'
+    return 'color: %s' % color
 
 cnx = database.open_reportdb()
 
@@ -117,7 +125,6 @@ print("==========================================================")
 w = {}
 for h in hosts:
     query = ("select distinct `suite`,`status` from report_view where `q_release` = '"+q_release+"' and `q_build` = '"+q_build+"' and `q_kernel` = '"+q_kernel+"'" + " and "+ "`r_release` = '"+r_release+"'" + " and "+ "`r_build` = '"+ r_build + "' and " + "`r_kernel` = '" +r_kernel + "'" + " and " + "`category` = '" + category + "'"+ " and "+" `case` = '"+ case + "' and `q_host` = `r_host`"+ " and `q_host` = '"+"".join(h)+"'" + " order by `suite`;")
-    print("king={}".format(query))
     cursor.execute(query)
     status_list=list()
     suite_list=list()
@@ -127,18 +134,24 @@ for h in hosts:
     w[h] = pd.Series(status_list, index=suite_list)
 
 
+#example
+#d = {
+#        'apac2-ph022' : pd.Series(['PASS', 'FAIL', 'PASS', 'FAIL'], index=['btrfs', 'xfs', 'ext3', 'ext4']),
+#        'apac2-ph023' : pd.Series(['PASS', 'PASS', 'PASS', 'PASS'], index=['btrfs', 'xfs', 'ext3', 'ext4']),
+#        'apac2-ph027' : pd.Series(['PASS', 'FAIL', 'PASS', 'FAIL'], index=['btrfs', 'xfs', 'ext3', 'ext4']),
+#        'apac2-ph031' : pd.Series(['PASS', 'PASS', 'PASS', 'FAIL'], index=['btrfs', 'xfs', 'ext3', 'ext4']),
+#        }
+#df = pd.DataFrame(d)
 
-d = {
-        'apac2-ph022' : pd.Series(['PASS', 'FAIL', 'PASS', 'FAIL'], index=['btrfs', 'xfs', 'ext3', 'ext4']),
-        'apac2-ph023' : pd.Series(['PASS', 'PASS', 'PASS', 'PASS'], index=['btrfs', 'xfs', 'ext3', 'ext4']),
-        'apac2-ph027' : pd.Series(['PASS', 'FAIL', 'PASS', 'FAIL'], index=['btrfs', 'xfs', 'ext3', 'ext4']),
-        'apac2-ph031' : pd.Series(['PASS', 'PASS', 'PASS', 'FAIL'], index=['btrfs', 'xfs', 'ext3', 'ext4']),
-        }
-
-df = pd.DataFrame(d)
-df = pd.DataFrame(w)
 pd.set_option('display.width', 2000)
-
+pd.set_option('html.border', 1)
+df = pd.DataFrame(w)
+html=df.style.applymap(color_negative_red).set_table_attributes("border=1").render()
+df.name=case
+f = open(case+".html", 'w')
 print(df)
+print(html)
+f.write(html)
+f.close()
 
 cnx.close()
