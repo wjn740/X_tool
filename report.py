@@ -2,6 +2,9 @@
 
 from database import database
 
+import numpy as np
+import pandas as pd
+
 class status_matrix():
     def __init__(self):
         self.q_kernel = ""
@@ -111,20 +114,31 @@ hosts = table
 print(hosts)
 print("==========================================================")
 
-
-for s in suites:
-    print("{}\t".format(s), end="")
-    for h in hosts:
-        query = ("select distinct `status` from report_view where `q_release` = '"+q_release+"' and `q_build` = '"+q_build+"' and `q_kernel` = '"+q_kernel+"'" + " and "+ "`r_release` = '"+r_release+"'" + " and "+ "`r_build` = '"+ r_build + "' and " + "`r_kernel` = '" +r_kernel + "'" + " and " + "`category` = '" + category + "'"+ " and "+" `case` = '"+ case + "' and `q_host` = `r_host`"+ " and `q_host` = '"+"".join(h)+"'" + " and `suite` = '" + "".join(s) +"'" +";")
-        cursor.execute(query)
-        for status in cursor:
-            if not i:
-                print("<NULL>\t",end="")
-            else:
-                print("status={}\t".format(status),end="")
-
-    print("")
+w = {}
+for h in hosts:
+    query = ("select distinct `suite`,`status` from report_view where `q_release` = '"+q_release+"' and `q_build` = '"+q_build+"' and `q_kernel` = '"+q_kernel+"'" + " and "+ "`r_release` = '"+r_release+"'" + " and "+ "`r_build` = '"+ r_build + "' and " + "`r_kernel` = '" +r_kernel + "'" + " and " + "`category` = '" + category + "'"+ " and "+" `case` = '"+ case + "' and `q_host` = `r_host`"+ " and `q_host` = '"+"".join(h)+"'" + " order by `suite`;")
+    print("king={}".format(query))
+    cursor.execute(query)
+    status_list=list()
+    suite_list=list()
+    for suite,status in cursor:
+        status_list.append(status)
+        suite_list.append(suite)
+    w[h] = pd.Series(status_list, index=suite_list)
 
 
+
+d = {
+        'apac2-ph022' : pd.Series(['PASS', 'FAIL', 'PASS', 'FAIL'], index=['btrfs', 'xfs', 'ext3', 'ext4']),
+        'apac2-ph023' : pd.Series(['PASS', 'PASS', 'PASS', 'PASS'], index=['btrfs', 'xfs', 'ext3', 'ext4']),
+        'apac2-ph027' : pd.Series(['PASS', 'FAIL', 'PASS', 'FAIL'], index=['btrfs', 'xfs', 'ext3', 'ext4']),
+        'apac2-ph031' : pd.Series(['PASS', 'PASS', 'PASS', 'FAIL'], index=['btrfs', 'xfs', 'ext3', 'ext4']),
+        }
+
+df = pd.DataFrame(d)
+df = pd.DataFrame(w)
+pd.set_option('display.width', 2000)
+
+print(df)
 
 cnx.close()
