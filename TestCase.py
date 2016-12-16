@@ -32,6 +32,13 @@ class TestCase():
             print(line)
 
     def testcase_benchmark(self):
+        """
+        The following functions will call corresponding constructor function.
+        These functions will add a benchmark attribute to TestCase object.
+        The benchmark attribute is a set of benchmark objects. each benchmark
+        object indicate represents a checkpoint. for instance, "random read",
+        "sequnce write".
+        """
         f = urllib.request.urlopen(self.log_url+"/"+self.testcase)
         if self.testcase == 'reaim-ioperf':
             self.benchmark_reaim_ioperf()
@@ -157,8 +164,10 @@ class TestCase():
                 m4 = pattern4.match(line)
                 if m3:
                     jobs=str(m3.group(1))
+                    continue
                 if m4:
                     jobs=str(m4.group(1))
+                    continue
                 if m1:
                     #print(m1.group(1))
                     self.benchmark.append(benchmark('Jobs'+jobs+'/'+'Elapsed_Time', float(m1.group(1)), -1))
@@ -181,6 +190,11 @@ class TestCase():
                 continue
 
     def benchmark_bonniepp(self):
+        """
+        Create a benchmark attribute for each Testcase object.
+        This attribute will use to compare subsystem.
+        This function could be called 'parser' for testing log.
+        """
         self.benchmark = list()
         pattern=re.compile(b'^Machine')
         with urllib.request.urlopen(self.log_url+"/"+self.testcase) as page:
@@ -198,7 +212,3 @@ class TestCase():
                     self.benchmark.append(benchmark('Sequential_Input#Block#K/s', line[10], 1))
                     self.benchmark.append(benchmark('Random#Seeks#sec', line[12], -1))
                     break
-
-
-
-

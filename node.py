@@ -35,6 +35,29 @@ class statistics_node():
         #self.print_benchmarks()
 
     def benchmarks_init(self):
+        """
+        benchmarks attribute looks like:
+        benchmarks = {
+            'random write' : {
+                              'mean': value,
+                              'sum' : value,
+                              'max' : value,
+                              'min' : value,
+                              'stddev' : value,
+                              'count' : value
+                              }
+
+            'random read' : {
+                              'mean': value,
+                              'sum' : value,
+                              'max' : value,
+                              'min' : value,
+                              'stddev' : value,
+                              'count' : value
+                              }
+
+            }
+        """
         _tmp_dict=dict()
         for tc in self.data:
             for bm in tc.benchmark:
@@ -42,6 +65,7 @@ class statistics_node():
                     _tmp_dict[bm.name].append(float(bm.value))
                 else:
                     _tmp_dict[bm.name] = [float(bm.value)]
+
         for k, v in _tmp_dict.items():
             self.benchmarks[k]=OrderedDict()
             self.benchmarks[k]['mean']=statistics.mean(v)

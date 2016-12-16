@@ -203,6 +203,10 @@ def make_final_select_query():
     final_select_string = "".join(["SELECT * from performance_view where" + compare_product_where_string + " and " + " `testsuite` = '" + compare_testsuite_string + "'" + " and " + " `testcase` = '" + compare_testcase_string + "'" + " and " + " `host` = '" + compare_host_string + "' and `arch` = '" + compare_arch_string + "';"])
 
 def build_global_testcase_list():
+    """
+    Query Database get TestCase objects set.
+    This set include all candidate records to compare.
+    """
     make_final_select_query()
     cnx = database.open_query()
     cursor = cnx.cursor()
@@ -222,7 +226,10 @@ def build_global_testcase_list():
     #for obj in testcase_list:
     #    groups[obj.kernel_version+obj.product+obj.release].append(obj)
     #new_list = groups.values()
+    """
+    TestCase_global_list_array looks like:
 
+    """
     groups = DefaultOrderedDict(list)
     for obj in testcase_list:
         groups[obj.kernel_version+obj.product+obj.release].append(obj)
