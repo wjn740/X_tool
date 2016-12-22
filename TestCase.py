@@ -159,8 +159,8 @@ class TestCase():
             for line in t:
                 m1 = pattern1.match(line)
                 if m1:
-                    self.benchmark.append(benchmark("{} processes Throughput(MB/sec)".format(m1.group(3)), m1.group(1), 1)
-                    self.benchmark.append(benchmark("{} processes max_latency(ms)".format(m1.group(3)), m1.group(4), -1)
+                    self.benchmark.append(benchmark("{} processes Throughput(MB/sec)".format(m1.group(3)), m1.group(1), 1))
+                    self.benchmark.append(benchmark("{} processes max_latency(ms)".format(m1.group(3)), m1.group(4), -1))
 
     def benchmark_kernbench(self):
         self.benchmark = list()
