@@ -66,28 +66,20 @@ def make_where_string_for_compare_product_list():
 
     start=True
     if compare_product_list:
-        for l in compare_product_list:
+        print("compare_product_list={}".format(compare_product_list))
+        for k,p,r in compare_product_list:
             '''
             [0]: kernel_version
             [1]: product
             [2]: release
             '''
-            if l[0]:
-                if start_kernel == False:
-                    kernel_version_string="".join([kernel_version_string, "or"])
-                kernel_version_string = "".join([kernel_version_string, " `kernel_version` = \'"+ l[0] +"\' "])
-                start_kernel = False
-            if l[1]:
-                if start_product == False:
-                    product_string="".join([product_string, "or"])
-                product_string = "".join([product_string, " `product` = \'"+ l[1] +"\' "])
-                start_product = False
-            if l[2]:
-                if start_release == False:
-                    release_string="".join([release_string, "or"])
-                release_string = "".join([release_string, " `release` = \'"+ l[2] +"\' "])
-                start_release = False
-    where_string = "".join(["( " + kernel_version_string +" )" + " and " + "( " + product_string +" )" + " and " + "(" + release_string + ")"])
+            if k and p and r:
+                if start == False:
+                    where_string = "".join([where_string, " or "])
+                where_string = "".join([where_string, "(`kernel_version` = '" + k + "' and `product` = '" + p + "' and `release` = '" + r + "' )"])
+                start = False
+            else:
+                return "";
     return where_string
 
 
@@ -99,6 +91,7 @@ def create_testsuite_list():
     if where_string:
         cnx = database.open_query()
         select_string="".join(["SELECT distinct testsuite from  performance_view ", " where ", where_string, ";"])
+        print(select_string)
         cursor = cnx.cursor()
         cursor.execute(select_string);
 

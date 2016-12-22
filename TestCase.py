@@ -4,6 +4,8 @@ import urllib.request
 
 import re
 
+import io
+
 from benchmark import benchmark
 
 class TestCase():
@@ -148,6 +150,18 @@ class TestCase():
                     break
             return "-".join([major, minor, flavor ])
 
+    def benchmark_dbench4(self):
+        self.benchmark = list()
+        with urllib.request.urlopen(self.log_url+"/"+self.testcase) as page:
+            g = io.BufferedReader(page)
+            t = io.TextIOWrapper(g, 'utf-8')
+            pattern1 = re.compile('^Throughput (\d+\.*\d*) MB/sec  (\d+\.*\d*) clients  (\d+\.*\d*) procs  max_latency=(\d+\.*\d*) ms')
+            for line in t:
+                m1 = pattern1.match(line)
+                if m1:
+                    self.benchmark.append(benchmark("{} processes Throughput(MB/sec)".format(m1.group(3)), m1.group(1), 1)
+                    self.benchmark.append(benchmark("{} processes max_latency(ms)".format(m1.group(3)), m1.group(4), -1)
+
     def benchmark_kernbench(self):
         self.benchmark = list()
         with urllib.request.urlopen(self.log_url+"/"+self.testcase) as page:
@@ -188,6 +202,44 @@ class TestCase():
                 value=str(m.group(1), 'utf-8')
                 self.benchmark.append(benchmark('Jobs_per_Minute', value, 1))
                 continue
+
+    def benchmark_netperf_tcp(self):
+        """
+        group(1):Recv socket size bytes
+        group(2):Send socket size bytes
+        group(3):Send message szie bytes
+        group(4):Elapsed Time secs
+        group(5):Throughput 10^6bits/sec
+        """
+        pattern = re.compile(" (\d+) +(\d+) +(\d+) +(\d+\.*\d*) +(\d+\.*\d*)")
+        for line in sys.stdin:
+            m1 = pattern.match(line)
+            if m1:
+                print("Throughput: {} (10^6bits/sec)".format(m1.group(5)));
+                break
+
+    def benchmark_netperf_udp(self):
+        """
+        Socket  Message  Elapsed      Messages
+        Size    Size     Time         Okay Errors   Throughput
+        bytes   bytes    secs            #      #   10^6bits/sec
+
+        212992   65507   60.00     2133018      0    18630.23    <--------m0
+        212992           60.00     1690587           14765.95    <--------m1
+        """
+        pattern0 = re.compile("(\d+) +(\d+) +(\d+\.*\d*) +(\d+) +(\d+) +(\d+\.*\d*)")
+        pattern1 = re.compile("(\d+) +(\d+\.*\d*) +(\d+) +(\d+\.*\d*)")
+#pattern = re.compile(" (\d+) +(\d+) +(\d+\.*\d*) +(\d+) +(\d+) +(\d+\.*\d*)")
+        for line in sys.stdin:
+            m0 = pattern0.match(line)
+            m1 = pattern1.match(line)
+            if m0:
+                print(line)
+                continue
+            if m1:
+                print(line)
+                break
+
 
     def benchmark_bonniepp(self):
         """
