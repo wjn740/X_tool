@@ -65,8 +65,10 @@ class TestCase():
             return
             return
         if self.testcase == 'dbench4-async':
+            self.benchmark_dbench4()
             return
         if self.testcase == 'dbench4-fsync':
+            self.benchmark_dbench4()
             return
         if self.testcase == 'kernbench':
             self.benchmark_kernbench()

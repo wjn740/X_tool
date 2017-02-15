@@ -72,7 +72,10 @@ class statistics_node():
             self.benchmarks[k]['sum']=sum(v)
             self.benchmarks[k]['max']=max(v)
             self.benchmarks[k]['min']=min(v)
-            self.benchmarks[k]['stddev']=statistics.stdev(v)
+            if len(v) >= 2:
+                self.benchmarks[k]['stddev']=statistics.stdev(v)
+            else:
+                self.benchmarks[k]['stddev']=0
             self.benchmarks[k]['count']=len(v)
 
 

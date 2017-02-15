@@ -1,6 +1,10 @@
 # X_tool
-use for check the result from performance testing
+This tool set is used for check the result from performance testing database.
 
-report.py
+User Manual
+
+main.py
+
+matrix.py
 
 It will generate a Matrix about status of comparsion results.

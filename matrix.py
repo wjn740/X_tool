@@ -2,8 +2,12 @@
 
 from database import database
 
+from bs4 import BeautifulSoup
+
 import numpy as np
 import pandas as pd
+
+import argparse
 
 class status_matrix():
     def __init__(self):
@@ -28,73 +32,107 @@ def color_negative_red(val):
     color = 'red' if val == 'Fail' else 'black'
     return 'color: %s' % color
 
+
+#Main program
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-a", "--q_release", help="choose a q_release", required=True)
+parser.add_argument("-b", "--q_build", help="choose a q_build", required=True)
+parser.add_argument("-c", "--q_kernel", help="choose a q_kernel", required=True)
+parser.add_argument("-d", "--r_release", help="choose a r_release", required=True)
+parser.add_argument("-e", "--r_build", help="choose a r_build", required=True)
+parser.add_argument("-f", "--r_kernel", help="choose a r_kernel", required=True)
+parser.add_argument("-g", "--category", help="choose a category", required=True)
+parser.add_argument("-i", "--case", help="choose a case", required=True)
+args = vars(parser.parse_args())
+
+
+
+q_release = args['q_release']
+q_build  = args['q_build']
+q_kernel = args['q_kernel']
+
+r_release = args['r_release']
+r_build  = args['r_build']
+r_kernel = args['r_kernel']
+
+category = args['category']
+
+case = args['case']
+
+ignore_user = 0
+if q_release and q_build and q_kernel and r_release and r_build and r_kernel and category and case:
+    ignore_user = 1
+
 cnx = database.open_reportdb()
 
 cursor = cnx.cursor()
 
-query = ("select distinct q_release, q_build , q_kernel from report_view;")
+if ignore_user == 0:
+    query = ("select distinct q_release, q_build , q_kernel from report_view;")
 
-cursor.execute(query)
+    cursor.execute(query)
 
-i=0
-table=list()
-for p,r,k in cursor:
-    table.append([p,r,k])
-    print(i,table[i])
-    i+=1
+    i=0
+    table=list()
+    for p,r,k in cursor:
+        table.append([p,r,k])
+        print(i,table[i])
+        i+=1
 
 
-l = input("Please input the NO. product to compare(eg, 1):")
-if l:
-    q_release = table[int(l)][0]
-    q_build  = table[int(l)][1]
-    q_kernel = table[int(l)][2]
+    l = input("Please input the NO. product to compare(eg, 1):")
+    if l:
+        q_release = table[int(l)][0]
+        q_build  = table[int(l)][1]
+        q_kernel = table[int(l)][2]
 
-query = ("select distinct r_release, r_build , r_kernel from report_view where `q_release` = '"+q_release+"' and `q_build` = '"+q_build+"' and `q_kernel` = '"+q_kernel+"';")
-print(query)
-cursor.execute(query)
-i=0
-table=list()
-for p,r,k in cursor:
-    table.append([p,r,k])
-    print(i,table[i])
-    i+=1
+    query = ("select distinct r_release, r_build , r_kernel from report_view where `q_release` = '"+q_release+"' and `q_build` = '"+q_build+"' and `q_kernel` = '"+q_kernel+"';")
+    print(query)
+    cursor.execute(query)
+    i=0
+    table=list()
+    for p,r,k in cursor:
+        table.append([p,r,k])
+        print(i,table[i])
+        i+=1
 
-l = input("Please input the NO. product to compare(eg, 1):")
-if l:
-    r_release = table[int(l)][0]
-    r_build  = table[int(l)][1]
-    r_kernel = table[int(l)][2]
+    l = input("Please input the NO. product to compare(eg, 1):")
+    if l:
+        r_release = table[int(l)][0]
+        r_build  = table[int(l)][1]
+        r_kernel = table[int(l)][2]
 
 #question + reference#
-query = ("select distinct `category` from report_view where `q_release` = '"+q_release+"' and `q_build` = '"+q_build+"' and `q_kernel` = '"+q_kernel+"'" + " and "+ "`r_release` = '"+r_release+"'" + " and "+ "`r_build` = '"+ r_build + "' and " + "`r_kernel` = '" + r_kernel + "';")
-print(query)
-cursor.execute(query)
-i=0
-table=list()
-for c in cursor:
-    table.append(c)
-    print(i,table[i])
-    i+=1
+    query = ("select distinct `category` from report_view where `q_release` = '"+q_release+"' and `q_build` = '"+q_build+"' and `q_kernel` = '"+q_kernel+"'" + " and "+ "`r_release` = '"+r_release+"'" + " and "+ "`r_build` = '"+ r_build + "' and " + "`r_kernel` = '" + r_kernel + "';")
+    print(query)
+    cursor.execute(query)
+    i=0
+    table=list()
+    for c in cursor:
+        table.append(c)
+        print(i,table[i])
+        i+=1
 
-l = input("Please input the NO. category to compare(eg, 1):")
-if l:
-    category = table[int(l)][0]
+    l = input("Please input the NO. category to compare(eg, 1):")
+    if l:
+        category = table[int(l)][0]
 
-query = ("select distinct `case` from report_view where `q_release` = '"+q_release+"' and `q_build` = '"+q_build+"' and `q_kernel` = '"+q_kernel+"'" + " and "+ "`r_release` = '"+r_release+"'" + " and "+ "`r_build` = '"+ r_build + "' and " + "`r_kernel` = '" + r_kernel + "'" + " and " + "`category` = '" + category + "'"+";")
-print(query)
-cursor.execute(query)
-i=0
-table=list()
-for c in cursor:
-    table.append(c)
-    print(i,table[i])
-    i+=1
+    query = ("select distinct `case` from report_view where `q_release` = '"+q_release+"' and `q_build` = '"+q_build+"' and `q_kernel` = '"+q_kernel+"'" + " and "+ "`r_release` = '"+r_release+"'" + " and "+ "`r_build` = '"+ r_build + "' and " + "`r_kernel` = '" + r_kernel + "'" + " and " + "`category` = '" + category + "'"+";")
+    print(query)
+    cursor.execute(query)
+    i=0
+    table=list()
+    for c in cursor:
+        table.append(c)
+        print(i,table[i])
+        i+=1
 
-l = input("Please input the NO. case to compare(eg, 1):")
-if l:
-    case = table[int(l)][0]
+    l = input("Please input the NO. case to compare(eg, 1):")
+    if l:
+        case = table[int(l)][0]
 
+#suite query
 query = ("select distinct `suite` from report_view where `q_release` = '"+q_release+"' and `q_build` = '"+q_build+"' and `q_kernel` = '"+q_kernel+"'" + " and "+ "`r_release` = '"+r_release+"'" + " and "+ "`r_build` = '"+ r_build + "' and " + "`r_kernel` = '" + r_kernel + "'" + " and " + "`category` = '" + category + "'"+ " and "+" `case` = '"+ case +"';")
 print(query)
 cursor.execute(query)
@@ -133,6 +171,7 @@ for h in hosts:
         suite_list.append(suite)
     w[h] = pd.Series(status_list, index=suite_list)
 
+cnx.close()
 
 #example
 #d = {
@@ -143,15 +182,24 @@ for h in hosts:
 #        }
 #df = pd.DataFrame(d)
 
+#pd.CategoricalIndex.fillna(0)
 pd.set_option('display.width', 2000)
 pd.set_option('html.border', 1)
 df = pd.DataFrame(w)
+table_title="{}-{} vs {}-{}".format(q_release,q_build,r_release,r_build)
 html=df.style.applymap(color_negative_red).set_table_attributes("border=1").render()
 df.name=case
 f = open(case+".html", 'w')
 print(df)
-print(html)
+#print(html)
+
+soup = BeautifulSoup(html, 'html5lib')
+
+tr = soup.find('th', class_='blank level0')
+tr.string.replaceWith(table_title)
+html=soup.prettify(formatter=None)
+
+
 f.write(html)
 f.close()
 
-cnx.close()

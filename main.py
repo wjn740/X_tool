@@ -80,7 +80,7 @@ def make_where_string_for_compare_product_list():
                 start = False
             else:
                 return "";
-    return where_string
+    return "".join(["(" + where_string + ")"])
 
 
 def create_testsuite_list():
@@ -171,7 +171,7 @@ def create_arch_list():
             print(i, table[i])
             i+=1
         cnx.close()
-        l = input("Please input the NO. host(eg, 0):")
+        l = input("Please input the NO. arch(eg, 0):")
         global compare_arch_string
         if not l and i > 0:
             compare_arch_string = "".join(table[0])
@@ -203,6 +203,7 @@ def build_global_testcase_list():
     make_final_select_query()
     cnx = database.open_query()
     cursor = cnx.cursor()
+    print(final_select_string)
     cursor.execute(final_select_string)
     testcase_list = list()
     for (submission_id, arch, product, release, host, log_url, testsuite, test_time, failed, testcase, kernel_version) in cursor:
@@ -266,7 +267,7 @@ if statistics_list:
     data = build_statistic_data(statistics_list)
 
 if data:
-    pd.set_option('display.width', 2000)
+    pd.set_option('display.width', 4000)
     dataframe = pd.DataFrame(data, index=statistics_list[0].indexs)
     #dataframe.style.format({'ratio1': "{:0.4f}", 'ratio2': "{:0.4f}"})
     a=len(dataframe.columns)
@@ -275,6 +276,6 @@ if data:
         dataframe.insert(b, 'ratio'+str(l),100 * (dataframe[statistics_list[-l+1].name] / dataframe[statistics_list[-l].name] - 1))
         b+=1
 
-print(dataframe)
+print(dataframe.sort_index())
 #format_dataframe(dataframe)
 #print(dataframe)
